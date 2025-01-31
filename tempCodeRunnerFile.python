@@ -1,0 +1,56 @@
+import numpy as np
+import gym
+import random
+import matplotlib.pyplot as plt
+
+# Create a simple 4x4 grid environment
+class SimpleGridWorld(gym.Env):
+    def __init__(self):
+        super(SimpleGridWorld, self).__init__()
+        
+        self.grid_size = 4  # Define grid size (4x4)
+        self.actions = [0, 1, 2, 3]  # Actions: 0=Up, 1=Down, 2=Left, 3=Right
+        self.state_space = (self.grid_size, self.grid_size)
+        self.state = (0, 0)  # Start at top-left corner
+        self.goal = (3, 3)  # Goal is bottom-right corner
+        
+        self.done = False
+        self.reward = 0
+        
+    def reset(self):
+        self.state = (0, 0)  # Reset to start position
+        self.done = False
+        self.reward = 0
+        return self.state
+    
+    def step(self, action):
+        # Define how the robot moves
+        x, y = self.state
+        if action == 0:  # Up
+            if x > 0: x -= 1
+        elif action == 1:  # Down
+            if x < self.grid_size - 1: x += 1
+        elif action == 2:  # Left
+            if y > 0: y -= 1
+        elif action == 3:  # Right
+            if y < self.grid_size - 1: y += 1
+        
+        self.state = (x, y)
+        
+        # Check if the goal is reached
+        if self.state == self.goal:
+            self.reward = 10
+            self.done = True
+        else:
+            self.reward = -1  # Penalize for each step taken
+        
+        return self.state, self.reward, self.done, {}
+    
+    def render(self):
+        # Simple visualization of the grid
+        grid = np.zeros((self.grid_size, self.grid_size))
+        x, y = self.state
+        grid[x, y] = 1  # Current position
+        gx, gy = self.goal
+        grid[gx, gy] = 2  # Goal position
+        print(grid)
